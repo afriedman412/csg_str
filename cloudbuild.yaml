@@ -42,6 +42,14 @@ steps:
         'us-central1-docker.pkg.dev/$PROJECT_ID/$_AR_REPO/$_IMAGE_NAME',
         '.'
       ]
+  
+  # Step 3: Push image to Artifact Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    id: "push-image"
+    args: [
+      'push',
+      'us-central1-docker.pkg.dev/$PROJECT_ID/$_AR_REPO/$_IMAGE_NAME'
+    ]
 
   # Step 3: Deploy to Cloud Run using runtime service account
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
