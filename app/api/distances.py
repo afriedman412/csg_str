@@ -1,6 +1,6 @@
 # app/api/distances.py
 from fastapi import APIRouter, Query, Body, HTTPException
-from app.utils.distance_calc import calc_distances, distances_from_address
+from app.utils.distance_calc import calc_distances, validate_address_data
 from app.utils.helpers import extract_address_from_url
 from app.schemas.property import AddressData
 
@@ -21,7 +21,8 @@ def get_distance_generic(
     """
     try:
         if address:
-            dists = distances_from_address(address)
+            address = validate_address_data(address)
+            dists = calc_distances(address.latitude, address.longitude)
             return {"address": address, **dists}
         elif lat is not None and lon is not None:
             dists = calc_distances(lat, lon)

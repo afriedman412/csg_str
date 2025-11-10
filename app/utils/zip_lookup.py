@@ -6,7 +6,7 @@ import geopandas as gpd
 from shapely.geometry import Point
 
 from app.core.store import DataStore
-from app.core.deps import get_store
+from app.core.registry import get_store
 
 # --- small per-store cache for row-wise arrays --------------------------------
 _ZIP_CTX: Dict[int, Dict[str, Any]] = {}

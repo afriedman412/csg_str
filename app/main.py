@@ -5,13 +5,16 @@ from fastapi import FastAPI, Request
 from contextlib import asynccontextmanager
 from app.api import inputs, predict, distances, debug, outputs, api
 from app.core.store import DataStore
+from app.core.registry import set_store
 from app.core.loader import load_store
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     print("🚀 App starting up — loading data...")
-    app.state.store = load_store()
+    store = load_store()
+    set_store(store)
+    app.state.store = store
     yield
     print("🧹 App shutting down — cleanup complete.")
 

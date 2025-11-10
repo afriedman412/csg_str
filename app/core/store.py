@@ -23,6 +23,7 @@ import time
 
 @dataclass(frozen=True)
 class DataStore:
+    pipeline: Any
     gdf_features: gpd.GeoDataFrame
     zips: gpd.GeoDataFrame
     trees: Optional[gpd.GeoDataFrame]
@@ -31,9 +32,8 @@ class DataStore:
     zip_bounds_miny: np.ndarray
     zip_bounds_maxx: np.ndarray
     zip_bounds_maxy: np.ndarray
-    geolocator: Nominatim
     meta: Dict[str, Any]
-    pipeline: Any
+    geolocator: Nominatim
 
     # internal mutable helpers (excluded from equality/repr; OK with frozen dataclass)
     _geo_lock: threading.Lock = field(default_factory=threading.Lock, repr=False, compare=False)

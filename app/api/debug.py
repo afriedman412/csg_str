@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from app.core.deps import get_store
+from app.core.registry import get_store
 
 router = APIRouter()
 

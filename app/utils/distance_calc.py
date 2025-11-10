@@ -7,28 +7,22 @@ from shapely.geometry import Point
 from shapely.geometry.base import BaseGeometry
 
 from app.core.store import DataStore
-from app.core.deps import get_store
 from app.core.config import CITY_CENTERS
 from app.utils.zip_lookup import zip_for_latlon
 from app.schemas.property import AddressData
 from app.utils.helpers import haversine
+from app.core.registry import get_store
 
 
-def geocode_address(
-    address: str | AddressData, store: Optional[DataStore] = None
-) -> Tuple[float, float]:
+def geocode_address(address: str | AddressData) -> Tuple[float, float]:
     """
     Convert an address to (lat, lon) using the shared Nominatim client.
     """
+    store = get_store()
     loc = store.geolocator.geocode(address, exactly_one=True)
     if not loc:
         raise ValueError(f"Address not found: {address}")
     return (loc.latitude, loc.longitude)
-
-
-# ---------------------------------------------------------------------------
-#  Distance calculator (nearest feature distances)
-# ---------------------------------------------------------------------------
 
 
 def _iter_feature_sets(store: DataStore):
@@ -49,8 +43,8 @@ def _iter_feature_sets(store: DataStore):
         yield "all_features", store.feature_index, store.gdf_features.geometry.values
 
 
-def calc_distances(lat: float, lon: float, store: Optional[DataStore] = None) -> Dict[str, float]:
-    store = store or get_store()
+def calc_distances(lat: float, lon: float) -> Dict[str, float]:
+    store = get_store()
     pt_m = gpd.GeoSeries([Point(lon, lat)], crs=4326).to_crs(3857).iloc[0]
 
     dists: Dict[str, float] = {}
@@ -65,7 +59,7 @@ def calc_distances(lat: float, lon: float, store: Optional[DataStore] = None) ->
     return dists
 
 
-def calc_city_center_distance(address: AddressData):
+def calc_city_center_distance(address: AddressData) -> float:
     """
     Hard-coded for Chicago right now
 
@@ -78,26 +72,13 @@ def calc_city_center_distance(address: AddressData):
     return cc_distance
 
 
-# ---------------------------------------------------------------------------
-#  Combined wrapper
-# ---------------------------------------------------------------------------
-
-
-def distances_from_address(
-    address: str | AddressData, store: Optional[DataStore] = None
-) -> Dict[str, Any]:
-    store = store or get_store()
-    lat, lon = geocode_address(address, store)
-    zip_code = zip_for_latlon(lat, lon, store)
-    return {"lat": lat, "lon": lon, "zip": zip_code, **calc_distances(lat, lon, store)}
-
-
 def validate_address_data(address: AddressData) -> AddressData:
     """
     Fills out lat, lon and zip if needed in an AddressData object.
     """
+    store = get_store()
     if address.latitude is None or address.longitude is None:
-        address.latitude, address.longitude = geocode_address(address)
+        address.latitude, address.longitude = geocode_address(address, store)
 
     if address.zipcode is None:
         address.zipcode = zip_for_latlon(address.latitude, address.longitude)
