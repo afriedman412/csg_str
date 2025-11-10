@@ -42,6 +42,15 @@ steps:
         'us-central1-docker.pkg.dev/$PROJECT_ID/$_AR_REPO/$_IMAGE_NAME',
         '.'
       ]
+  - name: 'gcr.io/cloud-builders/docker'
+    id: "verify-image"
+    args:
+      - 'run'
+      - '--rm'
+      - 'us-central1-docker.pkg.dev/$PROJECT_ID/$_AR_REPO/$_IMAGE_NAME'
+      - 'sh'
+      - '-c'
+      - 'ldconfig -p | grep libgomp || echo "❌ libgomp NOT FOUND"'
   
   # Step 3: Push image to Artifact Registry
   - name: 'gcr.io/cloud-builders/docker'
