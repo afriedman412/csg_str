@@ -75,7 +75,11 @@ steps:
         '$_REGION',
         '--allow-unauthenticated',
         '--service-account',
-        '$_RUNTIME_SA'
+        '$_RUNTIME_SA',
+        '--memory',
+        '1Gi', 
+        '--cpu',
+        '1'
       ]
 
 images:
