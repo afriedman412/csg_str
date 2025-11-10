@@ -1,25 +1,57 @@
 steps:
-  # (optional) quick tests; won't fail build if none
-  - name: 'python:3.12'
+  # Step 0: Download data & models from GCS into /workspace before build
+  - name: gcr.io/google.com/cloudsdktool/cloud-sdk
+    id: "fetch-data"
     entrypoint: bash
-    args: ['-c', 'pip install -r requirements.txt >/dev/null 2>&1 || true; pytest -q || echo "Skipping tests"']
+    args:
+      - -c
+      - |
+        echo "📦 Downloading geo and model files from GCS..."
+        mkdir -p data/geo models
+        gsutil -m cp gs://team-53-data/geo/zcta_3857.parquet data/geo/
+        gsutil -m cp gs://team-53-data/models/pipeline.joblib models/
+        gsutil -m cp gs://team-53-data/models/infer_meta.json models/
+        echo "✅ Finished fetching data from GCS."
 
-  # build container from Dockerfile at repo root
+  # Step 1: Run quick tests (non-blocking)
+  - name: 'python:3.12'
+    id: "run-tests"
+    entrypoint: bash
+    args:
+      - -c
+      - |
+        echo "🧪 Running tests..."
+        pip install -r requirements.txt >/dev/null 2>&1 || true
+        pytest -q || echo "⚠️  Skipping tests (non-blocking)."
+        echo "✅ Test step complete."
+
+  # Step 2: Build Docker image (includes data + models)
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['build', '-t', 'us-docker.pkg.dev/$PROJECT_ID/$_AR_REPO/$_IMAGE_NAME', '.']
+    id: "build-image"
+    args:
+      [
+        'build',
+        '-t',
+        'us-docker.pkg.dev/$PROJECT_ID/$_AR_REPO/$_IMAGE_NAME',
+        '.'
+      ]
 
-  # deploy to cloud run with runtime service account
+  # Step 3: Deploy to Cloud Run using runtime service account
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
-    args: [
-      'run','deploy','$_SERVICE_NAME',
-      '--image','us-docker.pkg.dev/$PROJECT_ID/$_AR_REPO/$_IMAGE_NAME',
-      '--region','$_REGION',
-      '--allow-unauthenticated',
-      '--service-account','$_RUNTIME_SA'
-    ]
+    id: "deploy-run"
+    args:
+      [
+        'run',
+        'deploy',
+        '$_SERVICE_NAME',
+        '--image',
+        'us-docker.pkg.dev/$PROJECT_ID/$_AR_REPO/$_IMAGE_NAME',
+        '--region',
+        '$_REGION',
+        '--allow-unauthenticated',
+        '--service-account',
+        '$_RUNTIME_SA'
+      ]
 
 images:
   - 'us-docker.pkg.dev/$PROJECT_ID/$_AR_REPO/$_IMAGE_NAME'
-
-options:
-  logging: CLOUD_LOGGING_ONLY
