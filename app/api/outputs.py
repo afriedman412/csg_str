@@ -4,7 +4,6 @@ from fastapi.responses import HTMLResponse
 from app.utils.helpers import extract_address_from_url, format_property_data
 from app.utils.processing import process_address
 from app.core.templates import templates
-from app.core.config import percent_keys
 
 router = APIRouter(prefix="/output")
 
@@ -22,16 +21,19 @@ def show_result(request: Request, url: str):
     lon = prop_dict.get("longitude")
 
     maps_url = (
-        f"https://www.google.com/maps?q={lat},{lon}" if lat is not None and lon is not None
+        f"https://www.google.com/maps?q={lat},{lon}"
+        if lat is not None and lon is not None
         else f"https://www.google.com/maps/search/{quote(joined_address)}"
     )
-    return templates.TemplateResponse("output.html", {
-        "request": request,
-        "prop_dict": formatted_prop_dict,
-        "price_pred": formatted_prop_dict.get("price_pred"),
-        "occ_pred": formatted_prop_dict.get("occ_pred"),
-        "rev_pred": formatted_prop_dict.get("rev_pred"),
-        "percent_keys": percent_keys,
-        "address": joined_address,
-        "maps_url": maps_url,
-    })
+    return templates.TemplateResponse(
+        "output.html",
+        {
+            "request": request,
+            "prop_dict": formatted_prop_dict,
+            "price_pred": formatted_prop_dict.get("price_pred"),
+            "occ_pred": formatted_prop_dict.get("occ_pred"),
+            "rev_pred": formatted_prop_dict.get("rev_pred"),
+            "address": joined_address,
+            "maps_url": maps_url,
+        },
+    )

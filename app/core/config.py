@@ -29,9 +29,6 @@ GEOCODER_DOMAIN = "nominatim.openstreetmap.org"
 GEOCODER_SCHEME = "https"
 
 
-# output template info
-percent_keys = ["percent_over_65", "percent_public_transport", "percent_work_from_home"]
-
 # inferred city center data
 CITY_CENTERS = {
     "albany-ny": (42.6526, -73.7562),
