@@ -46,6 +46,7 @@ steps:
   # Step 3: Deploy to Cloud Run using runtime service account
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     id: "deploy-run"
+    entrypoint: gcloud 
     args:
       [
         'run',
