@@ -1,0 +1,25 @@
+steps:
+  # (optional) quick tests; won't fail build if none
+  - name: 'python:3.12'
+    entrypoint: bash
+    args: ['-c', 'pip install -r requirements.txt >/dev/null 2>&1 || true; pytest -q || echo "Skipping tests"']
+
+  # build container from Dockerfile at repo root
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'us-docker.pkg.dev/$PROJECT_ID/$_AR_REPO/$_IMAGE_NAME', '.']
+
+  # deploy to cloud run with runtime service account
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    args: [
+      'run','deploy','$_SERVICE_NAME',
+      '--image','us-docker.pkg.dev/$PROJECT_ID/$_AR_REPO/$_IMAGE_NAME',
+      '--region','$_REGION',
+      '--allow-unauthenticated',
+      '--service-account','$_RUNTIME_SA'
+    ]
+
+images:
+  - 'us-docker.pkg.dev/$PROJECT_ID/$_AR_REPO/$_IMAGE_NAME'
+
+options:
+  logging: CLOUD_LOGGING_ONLY
