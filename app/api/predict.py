@@ -2,7 +2,7 @@
 import pandas as pd
 from fastapi import APIRouter
 
-from app.models.pipeline_adapter import predict_from_saved
+from app.model_api.pipeline_adapter import predict_from_saved
 from app.schemas.input import InputData
 
 router = APIRouter()

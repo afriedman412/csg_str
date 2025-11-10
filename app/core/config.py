@@ -8,7 +8,8 @@ DATA_PATHS = {
     'zips': DATA_DIR / "geo" / "zcta_3857.parquet"
 }
 
-MODEL_PATH = ROOT_DIR.parent / "models" / "lgbm_model.pkl"
+ART_DIR = Path(__file__).resolve().parents[2] / "models"
+PIPELINE_PATH = ART_DIR / "pipeline.joblib"
 
 # Geocoder settings
 # consider adding contact info per Nominatim policy

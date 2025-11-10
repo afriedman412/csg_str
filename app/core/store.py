@@ -17,5 +17,6 @@ class DataStore:
     zip_bounds_miny: np.ndarray
     zip_bounds_maxx: np.ndarray
     zip_bounds_maxy: np.ndarray
-    geolocator: Nominatim                 # ← add the shared geocoder
+    geolocator: Nominatim
     meta: Dict[str, Any]
+    pipeline: Any

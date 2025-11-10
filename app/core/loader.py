@@ -8,6 +8,7 @@ from app.core.config import (
     GEOCODER_DOMAIN, GEOCODER_SCHEME
 )
 from app.core.store import DataStore
+from app.model_api.model_loader import load_model
 
 
 def load_store() -> DataStore:
@@ -115,6 +116,8 @@ def load_store() -> DataStore:
         "feature_sets": feature_sets,
     }
 
+    pipeline = load_model()
+
     return DataStore(
         gdf_features=gdf,
         zips=zips,
@@ -126,4 +129,5 @@ def load_store() -> DataStore:
         zip_bounds_maxy=maxy,
         geolocator=geolocator,
         meta=meta,
+        pipeline=pipeline
     )

@@ -4,6 +4,7 @@ from fastapi.responses import HTMLResponse
 from fastapi import FastAPI, Request
 from contextlib import asynccontextmanager
 from app.api import inputs, predict, distances, debug, outputs, api
+from app.model_api.model_loader import load_model
 from app.core.loader import load_store
 from app.core.deps import set_store, get_store
 

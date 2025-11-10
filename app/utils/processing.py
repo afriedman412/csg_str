@@ -1,6 +1,6 @@
 import pandas as pd
 from app.utils.input_builder import build_input
-from app.models.pipeline_adapter import predict_from_saved
+from app.model_api.pipeline_adapter import predict_from_saved
 
 
 def process_address(address):
