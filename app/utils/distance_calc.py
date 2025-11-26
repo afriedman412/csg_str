@@ -22,8 +22,8 @@ def geocode_address(address: str | AddressData) -> Tuple[float, float]:
     address_ = str(address).replace(",", "")
     print("*** YOU ARE GETTING LAT LON FOR THIS:", address_)
     loc = store.geolocator.geocode(address_, exactly_one=True)
-    if not loc:
-        raise ValueError(f"Address not found: {address}")
+    # if not loc:
+    #     raise ValueError(f"Address not found: {address}")
     return (loc.latitude, loc.longitude)
 
 

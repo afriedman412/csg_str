@@ -5,6 +5,18 @@ import json
 from urllib.parse import urlparse, unquote
 from app.schemas.property import AddressData
 from app.core.address import STATE_ABBR, UNIT_MARKERS, DIRECTIONS
+from typing import Mapping, Callable
+
+
+def build_fget(source: Mapping) -> Callable:
+
+    def fget(k):
+        try:
+            return float(source.get(k, float("nan")))
+        except Exception:
+            return float("nan")
+
+    return fget
 
 
 def _clean_unit_tokens(tokens: list[str]) -> list[str]:
