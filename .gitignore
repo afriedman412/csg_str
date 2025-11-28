@@ -1,6 +1,7 @@
 # -- custom --
 testo.py
 sample.json
+scrap/
 
 # --- Python ---
 __pycache__/

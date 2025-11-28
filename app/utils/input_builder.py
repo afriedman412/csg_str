@@ -2,7 +2,7 @@ import pandas as pd
 from app.utils.distance_calc import calc_distances, calc_city_center_distance, validate_address_data
 from app.core.config import DATA_PATHS
 from app.utils.helpers import build_fget
-from app.schemas.property import ScenarioBase, AddressData
+from app.schemas.property import PropertyGeographic, AddressData
 
 
 def get_distance_features(address: AddressData) -> dict:
@@ -85,6 +85,6 @@ def build_scenario_location_base(address: AddressData) -> dict:
     return base
 
 
-def build_scenario_base_from_address(address: AddressData) -> ScenarioBase:
+def build_scenario_base_from_address(address: AddressData) -> PropertyGeographic:
     base_dict = build_scenario_location_base(address)
-    return ScenarioBase(**base_dict)
+    return PropertyGeographic(**base_dict)

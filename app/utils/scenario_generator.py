@@ -14,10 +14,9 @@ import numpy as np
 import pandas as pd
 from typing import List, Dict, Any
 from app.core.registry import get_store
-from app.schemas.property import AddressData, ScenarioControls
+from app.schemas.property import AddressData, PropertyControls
 from app.utils.input_builder import build_scenario_base_from_address
 from app.core.scenario_config import SIZE_PROTOTYPES, AMENITY_BUNDLES, CONTROLLABLE_COLS
-from app.utils.helpers import short_term_scenario_cleaning, COL_FIXES
 
 # ============================================================
 # CONTROLLABLE FEATURE DOMAIN (SCENARIO SPACE)
@@ -126,7 +125,7 @@ def generate_scenarios_from_address(
         control_map = dict(zip(control_keys, values))
 
         # (Optional) validate/control types using ScenarioControls
-        controls = ScenarioControls(**control_map)
+        controls = PropertyControls(**control_map)
         control_dict = controls.model_dump()
 
         # merge base + controls
@@ -191,10 +190,6 @@ def build_prototype_grid_from_address(address: AddressData) -> pd.DataFrame:
     df["city"] = "chicago-il"
     df["avg_price"] = 577.59
     df["med_price"] = 169.0
-    df.rename(
-        columns=COL_FIXES,
-        inplace=True,
-    )
 
     # 4. Inject embeddings EXACTLY as Pops does before prediction
     df_emb = pops.embedder.transform(df)

@@ -22,7 +22,7 @@ DATA_PATHS = {
 
 PIPELINE_PATH = ROOT_DIR / "models" / "pipeline.joblib"
 
-POPS_PATH = "/Users/user/Documents/code/team_53/team_53_app/models/pops_122625"
+POPS_PATH = ROOT_DIR / "models" / "pops_122725"
 
 # for loading
 PIPELINE_PATHS = {

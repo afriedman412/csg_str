@@ -14,9 +14,14 @@ EMBEDDING_CONFIG = {
 }
 
 MODEL_DATA = {
-    "price": {"target": "price_capped", "params": {"num_leaves": 63, "learning_rate": 0.03}},
+    "price": {
+        "target": "price_capped",
+        "transform": "log1p",
+        "params": {"num_leaves": 63, "learning_rate": 0.03},
+    },
     "occupancy": {
         "target": "estimated_occupancy_l365d",
+        "transform": "none",
         "params": {
             "objective": "tweedie",
             "tweedie_variance_power": 1.3,
@@ -26,6 +31,7 @@ MODEL_DATA = {
     },
     "revenue_corr": {
         "target": "rev_corr_target",
+        "transform": "none",
         "params": {
             "num_leaves": 31,
             "learning_rate": 0.03,

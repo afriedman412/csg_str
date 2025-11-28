@@ -5,7 +5,6 @@ from typing import Dict, Any, Tuple, Optional
 import geopandas as gpd
 from shapely.geometry import Point
 from shapely.geometry.base import BaseGeometry
-
 from app.core.store import DataStore
 from app.core.config import CITY_CENTERS
 from app.utils.zip_lookup import zip_for_latlon
@@ -45,7 +44,10 @@ def _iter_feature_sets(store: DataStore):
         yield "all_features", store.feature_index, store.gdf_features.geometry.values
 
 
-def calc_distances(lat: float, lon: float) -> Dict[str, float]:
+def calc_distances(
+    lat: float,
+    lon: float,
+) -> Dict[str, float]:
     store = get_store()
     pt_m = gpd.GeoSeries([Point(lon, lat)], crs=4326).to_crs(3857).iloc[0]
 

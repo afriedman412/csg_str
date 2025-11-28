@@ -1,6 +1,7 @@
 import numpy as np
 from app.model.base_model import LightGBMRegressorCV
 from app.core.model_config import MODEL_DATA
+from app.model.helpers import get_modeling_columns
 
 
 class RevenueModeler:
@@ -17,13 +18,15 @@ class RevenueModeler:
             self.params = MODEL_DATA["revenue_corr"]["params"]
 
     # -------------------------------------------------------------
-    def prepare_training_data(self, df, modeling_cols, price_model, occ_model):
+    def prepare_training_data(self, df, price_model, occ_model):
         """
         Prepares:
          - rev_true_log
          - rev_base_log
          - rev_corr_target
         """
+        # should just be structural + embeddings
+        modeling_cols = get_modeling_columns(df)
         X = df[modeling_cols]
 
         # base predictions
@@ -50,6 +53,7 @@ class RevenueModeler:
     def fit(self, X_corr, y_corr):
         self.model = LightGBMRegressorCV(params=self.params, transform="none")
         self.model.fit(X_corr, y_corr)
+        self.X_corr_cols = X_corr.columns.tolist()
         return self
 
     # -------------------------------------------------------------
@@ -60,9 +64,8 @@ class RevenueModeler:
           - run residual model
           - expm1(base_log + residual)
         """
-        rev_base = (price_pred * occ_pred).clip(1e-6)
-        base_log = np.log1p(rev_base)
 
+        base_log = self.get_base_log(price_pred, occ_pred)
         X = X_base.copy()
         X["rev_base_log"] = base_log
 
@@ -70,3 +73,8 @@ class RevenueModeler:
 
         rev_log_final = base_log + corr_pred
         return np.expm1(rev_log_final)
+
+    def get_base_log(self, price_pred, occ_pred):
+        rev_base = (price_pred * occ_pred).clip(1e-6)
+        base_log = np.log1p(rev_base)
+        return base_log

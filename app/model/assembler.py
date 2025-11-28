@@ -10,6 +10,7 @@ from app.core.model_config import MODEL_DATA, EMBEDDING_CONFIG
 from app.model.embedder import PerformanceGraphEmbedderV3
 from app.model.base_model import LightGBMRegressorCV
 from app.model.rev_modeler import RevenueModeler
+from app.model.helpers import get_modeling_columns
 
 
 class Pops:
@@ -36,8 +37,9 @@ class Pops:
         # --- Load saved embedder (optional) ---
         if embedder_path is not None:
             self.embedder = PerformanceGraphEmbedderV3.load(embedder_path)
+            self._pull_embeddings()
         else:
-            self.embedder = PerformanceGraphEmbedderV3()
+            self._build_embedder()
         return
 
     @property
@@ -68,15 +70,15 @@ class Pops:
             self.train_embeddings(training_df)
         df_with_embeddings = pd.concat([training_df, self.embeddings], axis=1)
         print("*** PRICE MODEL")
-        self.price_model = self._run_model("price", data=df_with_embeddings)
+        self.price_model = self._run_model("price", df_with_embeddings, evaluate=True)
         print("*** OCCUPANCY MODEL")
-        self.occ_model = self._run_model("occupancy", data=df_with_embeddings)
+        self.occ_model = self._run_model("occupancy", df_with_embeddings, evaluate=True)
 
         rm = RevenueModeler()
 
         print("*** REVENUE MODEL")
         X_corr, y_corr, _ = rm.prepare_training_data(
-            df_with_embeddings, self.modeling_cols, self.price_model, self.occ_model
+            df_with_embeddings, self.price_model, self.occ_model
         )
 
         rm.fit(X_corr, y_corr)
@@ -131,32 +133,52 @@ class Pops:
         self.embedder = PerformanceGraphEmbedderV3(**EMBEDDING_CONFIG)
         return
 
-    def _run_model(self, params_key, data=None, evaluate=False):
-        params = MODEL_DATA[params_key]["params"]
-        if data is not None:
-            X, y = data
+    def _pull_embeddings(self):
+        if self.embedder is not None:
+            if self.embedder.city_perf_embeddings is not None:
+                self.embeddings = self.embedder.city_perf_embeddings
+            else:
+                print("Embedder has not been trained!")
 
         else:
-            target = MODEL_DATA[params_key]["target"]
-            X = self.df[self.modeling_cols]
-            y = self.df[target]
+            print("No embedder loaded!")
+        return
+
+    def _run_model(self, params_key, df, evaluate=False):
+        params = MODEL_DATA[params_key]["params"]
+        transform = MODEL_DATA[params_key]["transform"]
+        target = MODEL_DATA[params_key]["target"]
+        modeling_cols = get_modeling_columns(df)
+        X = df[modeling_cols]
+        y = df[target]
 
         model = LightGBMRegressorCV(
             params=params,
-            transform="log1p",
+            transform=transform,
             n_splits=5,
         )
+
         model.fit(X, y)
+        if evaluate:
+            preds = model.predict(X)
+            self.evaluate(y, preds)
         return model
 
     def _build_shap_trees(self):
         import shap
 
-        # pick one fold as representative (or average later if you want)
+        # price + occupancy = simple
         self.price_explainer = shap.TreeExplainer(self.price_model._fold_models[0])
         self.occ_explainer = shap.TreeExplainer(self.occ_model._fold_models[0])
-        # guessing RevenueModeler wraps a tree model as .model_
-        self.rev_explainer = shap.TreeExplainer(self.rev_model.model._fold_models[0])
+
+        # revenue = complicated
+        # rev_model.model is a LightGBMRegressorCV
+        # so use its underlying _fold_models[0]
+        base_model = self.rev_model.model._fold_models[0]
+
+        # SHAP on the correction model needs X_corr columns, not X_base
+        self.rev_X_cols = self.rev_model.X_corr_cols  # you must store this during fit
+        self.rev_explainer = shap.TreeExplainer(base_model)
         return
 
     def shap_price(self, df_input: pd.DataFrame):
@@ -173,6 +195,25 @@ class Pops:
         df_inp_w_emb = df_input.join(self.embedder.transform(df_input, city_col=self.city_col))
         X = df_inp_w_emb[self.modeling_cols]
         return self.occ_explainer(X)
+
+    def shap_rev(self, df_input):
+        """
+        Because it's more complicated.
+        """
+        if len(df_input.filter(regex="perf")) == 0:
+            df_input = df_input.join(self.embedder.transform(df_input, city_col=self.city_col))
+        price_pred = self.price_model.predict(df_input)
+        occ_pred = self.occ_model.predict(df_input)
+
+        rev_base = np.clip(price_pred * occ_pred, 1e-6, None)
+        rev_base_log = np.log1p(rev_base)
+
+        X_corr = df_input.copy()
+        X_corr["rev_base_log"] = rev_base_log
+        X_corr = X_corr[self.rev_model.X_corr_cols]
+
+        shap_values_rev = self.rev_explainer.shap_values(X_corr)
+        return shap_values_rev
 
     # Utilities
     def evaluate(self, y_true, y_pred):

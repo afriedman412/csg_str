@@ -6,10 +6,10 @@ Reads the TIGER/Line shapefile and saves reprojected copies.
 
 import geopandas as gpd
 from pathlib import Path
-import numpy as np
 
-RAW_PATH = Path(__file__).resolve(
-).parents[1] / "data" / "geo" / "raw_zip_data" / "tl_2023_us_zcta520.shp"
+RAW_PATH = (
+    Path(__file__).resolve().parents[1] / "data" / "geo" / "raw_zip_data" / "tl_2023_us_zcta520.shp"
+)
 OUT_DIR = RAW_PATH.parent
 CACHE_GPKG = OUT_DIR / "zcta_3857.gpkg"
 CACHE_PARQUET = OUT_DIR / "zcta_3857.parquet"
@@ -33,14 +33,13 @@ def main():
     zips = zips.to_crs(epsg=3857)
 
     # Clean invalid or empty geometries
-    zips = zips[zips.geometry.notna() & zips.geometry.is_valid & ~
-                zips.geometry.is_empty].copy()
+    zips = zips[zips.geometry.notna() & zips.geometry.is_valid & ~zips.geometry.is_empty].copy()
 
     zips = zips.rename(columns={"ZCTA5CE20": "zcta"})
     zips["zcta"] = zips["zcta"].astype(str).str.zfill(5)
 
     print(zips.columns)
-    print(zips[zips['zcta'].str.startswith("6")].head())
+    print(zips[zips["zcta"].str.startswith("6")].head())
 
     # Save both cache formats
     print("💾 Saving GeoPackage and Parquet versions...")
