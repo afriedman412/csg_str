@@ -31,6 +31,24 @@ PIPELINE_PATHS = {
     "assembler": PIPELINE_PATH / "assembler.pkl",
 }
 
+# for revenue predictions
+PRED_OPTIONS = {
+    "pool": [True, False],
+    "housekeeping": [True, False],
+    "gym": [True, False],
+    "free_parking": [True, False],
+}
+
+CSG_PALETTE = [
+    "#C9A84A",  # gold
+    "#1E2A39",  # dark navy
+    "#A9C7E4",  # light blue
+    "#78D0F8",  # cyan
+    "#E8E8E8",  # light gray
+    "#1A1A1A",  # near black
+    "#FFFFFF",  # white
+]
+
 
 # Geocoder settings
 # consider adding contact info per Nominatim policy

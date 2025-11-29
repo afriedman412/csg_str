@@ -3,7 +3,7 @@ import json
 from app.utils.distance_calc import calc_distances, calc_city_center_distance, validate_address_data
 from app.core.config import DATA_PATHS
 from app.utils.helpers import build_fget, extract_address_from_url
-from app.schemas.property import PropertyGeographic, AddressData
+from app.schemas.property import AddressData
 
 
 def get_distance_features(address: AddressData) -> dict:
@@ -57,7 +57,7 @@ def get_census_features(zipcode: str) -> dict:
     }
 
 
-def build_scenario_location_base(address: AddressData) -> dict:
+def build_base(address: AddressData) -> dict:
     """
     Build a clean, ATTOM-free static feature dict:
     - latitude / longitude
@@ -86,11 +86,6 @@ def build_scenario_location_base(address: AddressData) -> dict:
     return base
 
 
-def build_scenario_base_from_address(address: AddressData) -> PropertyGeographic:
-    base_dict = build_scenario_location_base(address)
-    return PropertyGeographic(**base_dict)
-
-
 def janky_url_loader(url, json_path):
     with open(json_path) as f:
         jjj = f.read()
@@ -98,9 +93,9 @@ def janky_url_loader(url, json_path):
 
     address = extract_address_from_url(url)
 
-    for l in ["latitude", "longitude"]:
-        if address.__getattribute__(l) is None:
-            address.__setattr__(l, j["address"][l])
+    for l_ in ["latitude", "longitude"]:
+        if address.__getattribute__(l_) is None:
+            address.__setattr__(l_, j["address"][l_])
 
     distances = {
         k: float(j["inputs"][k].split()[0])

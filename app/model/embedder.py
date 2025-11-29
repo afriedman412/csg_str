@@ -240,6 +240,9 @@ class PerformanceGraphEmbedderV3:
         """
         outputs = []
 
+        if city_col not in df_new:
+            city_col = "slice"
+
         for city, df_city in df_new.groupby(city_col):
             if city not in self.city_perf_embeddings:
                 print(f"[warning] No trained embedder for city={city}, skipping.")

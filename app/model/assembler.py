@@ -2,11 +2,15 @@ import pandas as pd
 import numpy as np
 import joblib
 import json
+import io
+import base64
+import matplotlib.pyplot as plt
 from pathlib import Path
 from typing import List
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 from app.core.col_control import PERF_FEATS, STRUCTURAL_FEATS
 from app.core.model_config import MODEL_DATA, EMBEDDING_CONFIG
+from app.core.config import CSG_PALETTE
 from app.model.embedder import PerformanceGraphEmbedderV3
 from app.model.base_model import LightGBMRegressorCV
 from app.model.rev_modeler import RevenueModeler
@@ -65,6 +69,10 @@ class Pops:
         return self.embeddings
 
     def fit(self, training_df):
+        """
+        REMOVE ZEROS WHEN TRAINING
+        df_ = df[df['estimated_revenue_l365d'] > 0]
+        """
         if self.embeddings is None:
             print("*** GETTING EMBEDDINGS")
             self.train_embeddings(training_df)
@@ -107,6 +115,7 @@ class Pops:
             raise ValueError(f"Missing required columns for embedding: {missing}")
 
         # 1) Build embeddings for input data (virgin or not)
+        print("*** GETTING EMBEDDINGS")
         if not self.can_embed_new:
             raise RuntimeError("Embedder not available; cannot embed new listings.")
         new_embeddings = self.embedder.transform(df_input, city_col=self.city_col)
@@ -116,9 +125,11 @@ class Pops:
         X_base = df_input.join(new_embeddings)
 
         # 3) Price + occupancy predictions (original scale)
+        print("*** PREDICTING PRICE")
         price_pred = self.price_model.predict(X_base)
+        print("*** PREDICTING OCCUPANCY")
         occ_pred = self.occ_model.predict(X_base)
-
+        print("*** PREDICTING REVENUE")
         rev_pred = self.rev_model.predict(X_base, price_pred, occ_pred)
 
         self.df_with_embeds = X_base
@@ -223,6 +234,125 @@ class Pops:
         r2 = r2_score(y_true, y_pred)
 
         print(rmse, mae, r2)
+
+    def predict_and_explain(self, permo_df, amenities=None, return_plot=True):
+        """
+        Full revenue explanation pipeline for permutation or real listings.
+
+        Produces:
+        - X_corr (correct revenue correction feature matrix)
+        - SHAP values for the revenue model
+        - Global feature importance bar plot
+        - Amenity uplift table + bar chart
+        - Returns a dict with all components
+        """
+
+        # -----------------------
+        # 1. Predict first to build df_with_embeds correctly
+        # -----------------------
+        preds = self.predict(permo_df)  # populates self.df_with_embeds
+
+        df_base = self.df_with_embeds.copy()
+
+        # -----------------------
+        # 2. Build X_corr EXACTLY as in training
+        # -----------------------
+        price_pred = preds["price_pred"]
+        occ_pred = preds["occ_pred"]
+
+        rev_base_log = np.log1p(price_pred * occ_pred)
+
+        X_corr = df_base.copy()
+        X_corr["rev_base_log"] = rev_base_log
+
+        # Keep features in correct training order
+        X_corr = X_corr[self.rev_model.X_corr_cols]
+
+        # -----------------------
+        # 3. SHAP values
+        # -----------------------
+        shap_vals = self.rev_explainer.shap_values(X_corr)
+        if isinstance(shap_vals, list):
+            shap_vals = shap_vals[0]
+
+        # -----------------------
+        # 4. Amenity uplift calculations
+        # -----------------------
+        uplifts = {}
+        if amenities is None:  # Auto-detect binary amenities the model knows about
+            amenities = [
+                c
+                for c in permo_df.columns
+                if c
+                in [
+                    "beds",
+                    "pool",
+                    "hot_tub",
+                    "gym",
+                    "accommodates",
+                    "housekeeping",
+                    "free_parking",
+                ]
+            ]
+
+        # structural features you want to hold fixed
+        control_cols = ["accommodates"]
+
+        for feat in amenities:
+            diffs = []
+
+            # iterate over all combos of accommodations × beds
+            for acc, sub in permo_df.groupby(control_cols):
+
+                # require both amenity == 0 and amenity == 1 to exist
+                if sub[feat].nunique() < 2:
+                    continue
+
+                pred_sub = preds.loc[sub.index]
+
+                rev1 = pred_sub.loc[sub[feat] == 1, "rev_final_pred"].mean()
+                rev0 = pred_sub.loc[sub[feat] == 0, "rev_final_pred"].mean()
+
+                diffs.append(rev1 - rev0)
+
+            # uplift = average across all controlled diffs
+            uplifts[feat] = np.mean(diffs) if diffs else np.nan
+
+        uplift_series = pd.Series(uplifts).sort_values()
+
+        # -----------------------
+        # 5. Plots
+        # -----------------------
+        if return_plot:
+
+            fig, ax = plt.subplots(figsize=(6, 3))
+            uplift_series.sort_values().plot(
+                kind="barh",
+                ax=ax,
+                color=CSG_PALETTE[0],  # gold
+            )
+
+            ax.set_title("Amenity Uplift (Annual Revenue)", color=CSG_PALETTE[1])
+            ax.set_xlabel("Revenue change ($)")
+            ax.axvline(0, color=CSG_PALETTE[5], linewidth=1)  # near black
+            ax.grid(axis="x", alpha=0.15)
+            plt.tight_layout()
+            buf = io.BytesIO()
+            fig.savefig(buf, format="png", dpi=150, bbox_inches="tight")
+            plt.close(fig)
+            buf.seek(0)
+            png_b64 = base64.b64encode(buf.read()).decode("ascii")
+
+        # -----------------------
+        # 6. Return everything for downstream analysis
+        # -----------------------
+        return {
+            "shap_values": shap_vals,
+            "X_corr": X_corr,
+            "uplift_table": uplift_series,
+            "uplift_char_png": png_b64,
+            "preds": preds,
+        }
 
     def save(self, path: str, save_embeddings: bool = True):
         """

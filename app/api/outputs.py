@@ -3,7 +3,7 @@ from fastapi import APIRouter, Request, HTTPException
 from fastapi.responses import HTMLResponse
 from app.utils.helpers import extract_address_from_url, format_property_data
 from app.core.templates import templates
-from app.utils.input_builder import build_scenario_base_from_address
+from app.utils.input_builder import build_base
 
 router = APIRouter(prefix="/output")
 
@@ -13,7 +13,7 @@ def show_result(request: Request, url: str):
     if not url:
         raise HTTPException(400, "Missing url")
     address = extract_address_from_url(url)
-    prop_dict = build_scenario_base_from_address(address)
+    prop_dict = build_base(address)
     formatted_prop_dict = format_property_data(prop_dict)
     lat = prop_dict.get("latitude")
     lon = prop_dict.get("longitude")

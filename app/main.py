@@ -4,7 +4,7 @@ from fastapi.responses import HTMLResponse
 from fastapi import FastAPI, Request
 import uvicorn
 from contextlib import asynccontextmanager
-from app.api import inputs, distances, debug, outputs, api, scenario_tests
+from app.api import inputs, distances, debug, outputs, api
 from app.core.store import DataStore
 from app.core.registry import set_store
 from app.core.loader import load_store
@@ -32,7 +32,6 @@ app.include_router(inputs.router)
 app.include_router(outputs.router)
 app.include_router(debug.router)
 app.include_router(api.router)
-app.include_router(scenario_tests.router)
 
 templates = Jinja2Templates(directory="templates")
 
