@@ -1,7 +1,6 @@
 # app/core/store.py
 from dataclasses import dataclass, field
 import geopandas as gpd
-import numpy as np
 from shapely.strtree import STRtree
 from typing import Optional, Dict, Any
 from cachetools import TTLCache
@@ -29,8 +28,10 @@ class DataStore:
     meta: Dict[str, Any]
 
     # internal mutable helpers (excluded from equality/repr; OK with frozen dataclass)
-    _geo_lock: threading.Lock = field(default_factory=threading.Lock, repr=False, compare=False)
-    _rate_lock: threading.Lock = field(default_factory=threading.Lock, repr=False, compare=False)
+    _geo_lock: threading.Lock = field(
+        default_factory=threading.Lock, repr=False, compare=False)
+    _rate_lock: threading.Lock = field(
+        default_factory=threading.Lock, repr=False, compare=False)
     _last_call: float = field(default=0.0, repr=False, compare=False)
     _cache: TTLCache = field(
         default_factory=lambda: TTLCache(
@@ -40,7 +41,8 @@ class DataStore:
         repr=False,
         compare=False,
     )
-    _geolocator_instance: Optional[Nominatim] = field(default=None, repr=False, compare=False)
+    _geolocator_instance: Optional[Nominatim] = field(
+        default=None, repr=False, compare=False)
 
     # ---- Lazy geolocator (one per process) ---------------------------------
     @property
@@ -89,7 +91,8 @@ class DataStore:
                 "postalcode": "",
                 "countrycodes": "us",
             }
-            loc = self.geolocator.geocode(parts, exactly_one=True, addressdetails=False)
+            loc = self.geolocator.geocode(
+                parts, exactly_one=True, addressdetails=False)
             if (coords := _hit(loc)) is not None:
                 return coords
         except (GeocoderTimedOut, GeocoderUnavailable):
@@ -103,7 +106,8 @@ class DataStore:
                 if "," in address
                 else address.replace(" IL ", ", IL ").replace(" Chicago ", ", Chicago ")
             )
-            loc = self.geolocator.geocode(q, exactly_one=True, addressdetails=False)
+            loc = self.geolocator.geocode(
+                q, exactly_one=True, addressdetails=False)
             if (coords := _hit(loc)) is not None:
                 return coords
         except (GeocoderTimedOut, GeocoderUnavailable):

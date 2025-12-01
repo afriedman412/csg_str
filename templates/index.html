@@ -41,38 +41,23 @@
 
         <!-- LEFT BRANDING BAR -->
         <div class="hidden md:flex fixed top-0 left-0 h-full w-1/6 min-w-[160px] max-w-[210px] shadow-lg z-20">
-            <!-- Background skyline image -->
             <div class="absolute inset-0 bg-center bg-cover"
-                style="background-image: url('/static/skyline.jpg');">
-            </div>
-
-            <!-- Navy overlay for contrast -->
+                style="background-image: url('/static/skyline.jpg');"></div>
             <div class="absolute inset-0"></div>
 
-            <!-- Foreground: logo + small mark -->
-                <div class="relative flex flex-col items-center justify-between pt-10 pb-6 w-full z-10">
-                    
-                    <!-- Bigger logo wrapper -->
-                    <div class="w-40 h-40 md:w-48 md:h-48 overflow-hidden flex items-center justify-center">
-                        <img
+            <div class="relative flex flex-col items-center justify-between pt-10 pb-6 w-full z-10">
+                <div class="w-40 h-40 md:w-48 md:h-48 overflow-hidden flex items-center justify-center">
+                    <img
                         src="/static/csg_logo.png"
                         alt="Chicago Strategy Group"
-                        class="w-56 md:w-64 h-auto -translate-y-3 drop-shadow-lg"
-                        />
-                    </div>
-
-                    <!-- Tiny bottom mark -->
-                    <span class="text-[var(--gold)] text-[10px] tracking-[0.35em] uppercase">
-                        CSG
-                    </span>
-                
+                        class="w-56 md:w-64 h-auto -translate-y-3 drop-shadow-lg" />
                 </div>
+                <span class="text-[var(--gold)] text-[10px] tracking-[0.35em] uppercase">CSG</span>
             </div>
         </div>
 
         <div class="max-w-6xl mx-auto py-10 px-5 md:px-8 md:pl-28">
 
-            <!-- Subtitle -->
             <p class="text-[var(--navy)]/80 mt-2 text-base md:text-lg mb-8">
                 Estimate annual revenue and see how amenities move the needle.
             </p>
@@ -80,85 +65,90 @@
             <div class="grid gap-8 md:grid-cols-2 items-start">
 
                 <!-- INPUT CARD -->
-                <section
-                    id="input-card"
+                <section id="input-card"
                     class="bg-[var(--white)] shadow-lg rounded-xl p-8 space-y-6 border border-[var(--navy)]/10">
 
-                    <h2 class="text-2xl font-semibold text-[var(--navy)] mb-4">
-                        Listing Details
-                    </h2>
+                    <h2 class="text-2xl font-semibold text-[var(--navy)] mb-4">Listing Details</h2>
 
-                    <!-- Zillow URL -->
                     <div>
-                        <label class="block font-medium text-[var(--navy)] mb-1">
-                            Zillow URL
-                        </label>
-                        <input
-                            id="zurl"
+                        <label class="block font-medium text-[var(--navy)] mb-1">Zillow URL</label>
+                        <input id="zurl"
                             value="https://www.zillow.com/homedetails/555-W-Cornelia-Ave-APT-1011-Chicago-IL-60657/3717256_zpid/"
                             type="text"
                             class="w-full rounded-md px-3 py-2 border border-[var(--navy)]/20 bg-[var(--light-gray)]/50
-                   focus:outline-none focus:ring-2 focus:ring-[var(--navy)]" />
+                            focus:outline-none focus:ring-2 focus:ring-[var(--navy)]" />
                     </div>
 
-                    <!-- Bedrooms + Bathrooms -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label class="block font-medium text-[var(--navy)] mb-1">
-                                Bedrooms
-                            </label>
-                            <input id="beds" value="2" type="number" min="0"
+                            <label class="block font-medium text-[var(--navy)] mb-1">Bedrooms</label>
+                            <input
+                                id="beds"
+                                value="2"
+                                type="number"
+                                min="0"
                                 class="w-full rounded-md px-3 py-2 border border-[var(--navy)]/20 bg-[var(--light-gray)]/50
-                     focus:outline-none focus:ring-2 focus:ring-[var(--navy)]" />
+                                focus:outline-none focus:ring-2 focus:ring-[var(--navy)]" />
                         </div>
 
                         <div>
-                            <label class="block font-medium text-[var(--navy)] mb-1">
-                                Bathrooms
-                            </label>
-                            <input id="baths" value="2" type="number" min="0" step="0.5"
+                            <label class="block font-medium text-[var(--navy)] mb-1">Bathrooms</label>
+                            <input id="baths"
+                                value="2"
+                                type="number"
+                                min="0"
+                                step="0.5"
                                 class="w-full rounded-md px-3 py-2 border border-[var(--navy)]/20 bg-[var(--light-gray)]/50
-                     focus:outline-none focus:ring-2 focus:ring-[var(--navy)]" />
+                                focus:outline-none focus:ring-2 focus:ring-[var(--navy)]" />
                         </div>
                     </div>
 
-                    <!-- Accommodates -->
                     <div>
-                        <label class="block font-medium text-[var(--navy)] mb-1">
-                            Accommodates
-                        </label>
-                        <input id="accommodates" value="4" type="number" min="1"
+                        <label class="block font-medium text-[var(--navy)] mb-1">Accommodates</label>
+                        <input id="accommodates"
+                            value="4"
+                            type="number"
+                            min="1"
                             class="w-full rounded-md px-3 py-2 border border-[var(--navy)]/20 bg-[var(--light-gray)]/50
-                   focus:outline-none focus:ring-2 focus:ring-[var(--navy)]" />
+                            focus:outline-none focus:ring-2 focus:ring-[var(--navy)]" />
                     </div>
 
-                    <!-- Submit button -->
-                    <button
-                        id="submit-btn"
+                    <button id="submit-btn"
                         class="w-full bg-[var(--navy)] text-[var(--white)] py-3 rounded-lg text-lg font-semibold
-                 hover:bg-[var(--gold)] hover:text-[var(--near-black)]
-                 transition-colors shadow-md">
+                        hover:bg-[var(--gold)] hover:text-[var(--near-black)]
+                        transition-colors shadow-md">
                         Estimate Revenue
                     </button>
                 </section>
 
-                <!-- OUTPUT CARD -->
-                <section
-                    id="output-section"
+                <!-- OUTPUT CARD (JINJA ENABLED) -->
+                <section id="output-section"
                     class="bg-[var(--white)] shadow-lg rounded-xl p-8 space-y-6 border border-[var(--navy)]/10 flex flex-col">
 
+                    <!-- If no prediction -->
+                    {% if not revenue %}
                     <div id="output-empty" class="text-[var(--navy)]/50 text-sm">
                         Fill in the form and click <span class="font-semibold">Estimate Revenue</span> to see results.
                     </div>
+                    {% endif %}
 
-                    <div id="output-content" class="hidden space-y-6 flex-1">
+                    <!-- If prediction exists -->
+                    {% if revenue %}
+                    <div id="output-content" class="space-y-6 flex-1">
                         <div class="space-y-2">
-                            <p class="text-xs uppercase tracking-widest text-[var(--navy)]/50">
-                                Estimate for
+                            <p class="text-xs uppercase tracking-widest text-[var(--navy)]/50">Estimate for</p>
+                            <h2 id="addr" class="text-2xl font-semibold text-[var(--navy)]">
+                                {{ address }}
+                            </h2>
+
+                            <p id="rev" class="text-4xl font-bold text-[var(--gold)]">
+                                ${{ "{:,.0f}".format(revenue) }}
                             </p>
-                            <h2 id="addr" class="text-2xl font-semibold text-[var(--navy)]"></h2>
-                            <p id="rev" class="text-4xl font-bold text-[var(--gold)]"></p>
-                            <p id="priceocc" class="text-sm text-[var(--navy)]/80"></p>
+
+                            <p id="priceocc" class="text-sm text-[var(--navy)]/80">
+                                ${{ "{:,.0f}".format(price_pred) }} / night ·
+                                {{ occ_pred }} nights
+                            </p>
                         </div>
 
                         <div class="h-px bg-[var(--navy)]/10"></div>
@@ -174,51 +164,55 @@
                             </div>
 
                             <div class="bg-[var(--light-gray)]/50 rounded-lg border border-[var(--navy)]/10 p-3">
-                                <img id="uplift-img" class="w-full rounded-md shadow-sm" alt="Amenity uplift chart" />
+                                {% if uplift_chart_png %}
+                                <img id="uplift-img" class="w-full rounded-md shadow-sm"
+                                    src="data:image/png;base64,{{ uplift_chart_png }}" />
+                                {% endif %}
                             </div>
                         </div>
                     </div>
+                    {% endif %}
 
                 </section>
 
             </div>
 
         </div>
+
         <!-- LOADING OVERLAY -->
         <div id="loading-overlay"
             class="fixed inset-0 bg-black/20 backdrop-blur-sm hidden z-50 flex justify-center items-start pt-120 md:pt-40">
-
             <div class="flex flex-col items-center gap-4">
-                <!-- Spinner -->
                 <div class="w-12 h-12 border-4 border-[var(--navy)] border-t-[var(--gold)]
                 rounded-full animate-spin"></div>
-
                 <p class="text-[var(--navy)] font-semibold text-lg drop-shadow">
                     Evaluating property…
                 </p>
             </div>
         </div>
 
-        <!-- Existing JS preserved exactly -->
+        <!-- SUBMIT SCRIPT (unchanged – still posting FormData) -->
         <script>
-            const btn = document.getElementById("submit-btn");
-            const overlay = document.getElementById("loading-overlay");
-
-            btn.onclick = async (e) => {
+            document.getElementById("submit-btn").onclick = async (e) => {
                 e.preventDefault();
-    
-                const zurl = document.getElementById("zurl").value.trim();
 
-                if (!zurl) {
-                alert("Please enter a Zillow URL.");
-                return;
-                }
+                const formData = new FormData();
+                formData.append("url", document.getElementById("zurl").value.trim());
+                formData.append("bedrooms", document.getElementById("beds").value.trim());
+                formData.append("bathrooms", document.getElementById("baths").value.trim());
+                formData.append("accommodates", document.getElementById("accommodates").value.trim());
 
-                // Show loading overlay
-                overlay.classList.remove("hidden");
-                
-                // Redirect to output page with URL parameter
-                window.location.href = "/output?url=" + encodeURIComponent(zurl);
+                document.getElementById("loading-overlay").classList.remove("hidden");
+
+                const resp = await fetch("/api/perms", {
+                    method: "POST",
+                    body: formData
+                });
+
+                const html = await resp.text();
+                document.open();
+                document.write(html);
+                document.close();
             };
         </script>
 

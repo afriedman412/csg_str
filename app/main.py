@@ -7,7 +7,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi import FastAPI, Request
 import uvicorn
 from contextlib import asynccontextmanager
-from app.api import inputs, distances, debug, api, outputs
+from app.api import debug, api
 from app.core.store import DataStore
 from app.core.registry import set_store
 from app.core.loader import load_store
@@ -41,9 +41,6 @@ def get_store(request: Request) -> DataStore:
     return request.app.state.store
 
 
-app.include_router(distances.router)
-app.include_router(inputs.router)
-app.include_router(outputs.router)
 app.include_router(debug.router)
 app.include_router(api.router)
 
@@ -56,9 +53,9 @@ async def home(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
 
 
-@app.get("/ai_test", response_class=HTMLResponse)
-async def ai_test(request: Request):
-    return templates.TemplateResponse("ai_test.html", {"request": request})
+@app.get("/ai")
+def show_ai(request: Request):
+    return templates.TemplateResponse("ai_index.html", {"request": request})
 
 
 if __name__ == "__main__":

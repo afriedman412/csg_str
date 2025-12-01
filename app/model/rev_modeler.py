@@ -1,6 +1,6 @@
 import numpy as np
 from app.model.base_model import LightGBMRegressorCV
-from app.core.model_config import MODEL_DATA
+from app.core.config import MODEL_DATA
 from app.model.helpers import get_modeling_columns
 
 

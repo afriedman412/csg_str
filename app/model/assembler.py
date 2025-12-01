@@ -9,8 +9,7 @@ from pathlib import Path
 from typing import List
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 from app.core.col_control import PERF_FEATS, STRUCTURAL_FEATS
-from app.core.model_config import MODEL_DATA, EMBEDDING_CONFIG
-from app.core.config import CSG_PALETTE
+from app.core.config import CSG_PALETTE, MODEL_DATA, EMBEDDING_CONFIG
 from app.model.embedder import PerformanceGraphEmbedderV3
 from app.model.base_model import LightGBMRegressorCV
 from app.model.rev_modeler import RevenueModeler
@@ -18,7 +17,7 @@ from app.model.helpers import (
     check_schema_compatibility,
     canonical_data_cleaning,
 )
-from app.schemas.validator import (
+from app.schemas.pandera_ import (
     PriceTrainingSchema,
     OccupancyTrainingSchema,
     RevenueTrainingSchema,

@@ -2,7 +2,7 @@ import re
 import math
 from math import radians, sin, cos, sqrt, atan2
 from urllib.parse import urlparse, unquote
-from app.schemas.property import AddressData
+from app.schemas.pydantic_ import AddressData
 from app.core.address import STATE_ABBR, UNIT_MARKERS, DIRECTIONS
 from typing import Mapping, Callable
 
@@ -37,7 +37,7 @@ def _clean_unit_tokens(tokens: list[str]) -> list[str]:
 
     # Assume city is the single token immediately before STATE (works for most Zillow slugs)
     # (If you have lots of multi-token cities, we can extend this later.)
-    city_tokens = tokens[idx_state - 1 : idx_state]
+    city_tokens = tokens[idx_state - 1: idx_state]
     addr_tokens = tokens[: idx_state - 1]  # street part
     state_zip = tokens[idx_state:]  # [STATE, ZIP]
 
@@ -107,7 +107,8 @@ def extract_address_from_url(url: str) -> AddressData | None:
             city = tokens[-3].replace("-", " ").title()
             street_tokens = tokens[:-3]
 
-            address1 = " ".join(nice(t) for t in street_tokens).strip().replace("  ", " ")
+            address1 = " ".join(nice(t)
+                                for t in street_tokens).strip().replace("  ", " ")
             address2 = f"{city} {state} {zipcode}"
 
             return AddressData(
@@ -251,7 +252,8 @@ def haversine(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
     dlat = radians(lat2 - lat1)
     dlon = radians(lon2 - lon1)
 
-    a = sin(dlat / 2) ** 2 + cos(radians(lat1)) * cos(radians(lat2)) * sin(dlon / 2) ** 2
+    a = sin(dlat / 2) ** 2 + cos(radians(lat1)) * \
+        cos(radians(lat2)) * sin(dlon / 2) ** 2
     c = 2 * atan2(sqrt(a), sqrt(1 - a))
 
     return R * c
