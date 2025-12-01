@@ -3,7 +3,6 @@ import seaborn as sns
 import pandas as pd
 import numpy as np
 from app.core.col_control import STRUCTURAL_FEATS
-from app.core.model_config import MODEL_DATA
 from typing import Dict, Any, Iterable
 import pandera.pandas as pa
 from pandera.errors import SchemaErrors
@@ -33,10 +32,12 @@ def some_cleaning(df, cat_df):
 
     df = df[df["zip"].notnull()]
 
-    df["host_has_profile_pic"] = df["host_has_profile_pic"].map({"t": 1, "f": 0}).astype(bool)
+    df["host_has_profile_pic"] = df["host_has_profile_pic"].map(
+        {"t": 1, "f": 0}).astype(bool)
 
     df = pd.concat(
-        [df, pd.get_dummies(df[["privacy", "room_type", "host_response_time"]], drop_first=True)],
+        [df, pd.get_dummies(
+            df[["privacy", "room_type", "host_response_time"]], drop_first=True)],
         axis=1,
     ).drop(columns=["privacy", "room_type", "host_response_time", "amenities", "price"])
     return df
@@ -44,7 +45,8 @@ def some_cleaning(df, cat_df):
 
 def feature_plot(fi, n=25):
     # Order features by mean importance (descending) and take top 25
-    order = fi.groupby("feature")["importance"].mean().sort_values(ascending=False).head(n).index
+    order = fi.groupby("feature")["importance"].mean(
+    ).sort_values(ascending=False).head(n).index
 
     plt.figure(figsize=(7, 5))
     sns.barplot(
@@ -171,9 +173,11 @@ def coerce_df_to_match_schema(
                 non_null = s.dropna()
                 if len(non_null) and np.all(np.floor(non_null) == non_null):
                     df[col_name] = non_null.astype("int64").reindex(s.index)
-                    changes.append(f"{col_name}: coerced float -> int64 (all values integral)")
+                    changes.append(
+                        f"{col_name}: coerced float -> int64 (all values integral)")
                     if verbose:
-                        print(f"🔧 {col_name}: coerced float -> int64 (all values integral)")
+                        print(
+                            f"🔧 {col_name}: coerced float -> int64 (all values integral)")
                 else:
                     if verbose:
                         print(
@@ -244,7 +248,8 @@ def check_schema_compatibility(
             schema.validate(df, lazy=True)
         except SchemaErrors as err:
             # Pandera gives a rich errors dataframe; convert to dicts for easy logging
-            result["schema_errors"] = err.failure_cases.to_dict(orient="records")
+            result["schema_errors"] = err.failure_cases.to_dict(
+                orient="records")
             if raise_on_error:
                 raise
 

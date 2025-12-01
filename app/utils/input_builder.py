@@ -3,7 +3,7 @@ import json
 from app.utils.distance_calc import calc_distances, calc_city_center_distance, validate_address_data
 from app.core.config import DATA_PATHS
 from app.utils.helpers import build_fget, extract_address_from_url
-from app.schemas.property import AddressData
+from app.schemas.pydantic_ import AddressData
 
 
 def get_distance_features(address: AddressData) -> dict:

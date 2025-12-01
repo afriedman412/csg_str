@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Investment Analysis - STR Estimator</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap"
+            rel="stylesheet">
+
+        <style>
+            :root {
+                --gold: #C9A84A;
+                --navy: #1E2A39;
+                --light-blue: #A9C7E4;
+                --cyan: #78D0F8;
+                --light-gray: #F4F4F4;
+                --white: #FFFFFF;
+                --near-black: #1A1A1A;
+            }
+            body { font-family: 'Montserrat', sans-serif; }
+        </style>
+    </head>
+
+    <body class="min-h-screen bg-[var(--light-gray)] text-[var(--near-black)]">
+
+        <!-- GOLD HEADER BAR -->
+        <div class="w-full bg-[var(--gold)] py-6 shadow-md">
+            <div class="max-w-6xl mx-auto px-5 md:px-8">
+                <h1 class="text-3xl md:text-4xl font-semibold text-[var(--navy)] tracking-tight">
+                    Short-Term Rental Investment Analysis
+                </h1>
+            </div>
+        </div>
+
+        <div class="max-w-6xl mx-auto py-10 px-4">
+
+            <!-- Back to Home -->
+            <div class="mb-6">
+                <a href="/" class="text-[var(--navy)] hover:text-[var(--gold)] text-sm font-medium">
+                    ← Back to Home
+                </a>
+            </div>
+
+            <!-- INPUT CARD -->
+            <section
+                id="input-card"
+                class="bg-[var(--white)] shadow-lg rounded-xl p-8 space-y-6 border border-[var(--navy)]/10 mb-8">
+
+                <h2 class="text-2xl font-semibold text-[var(--navy)] mb-4">
+                    Listing Details
+                </h2>
+
+                <div>
+                    <label class="block font-medium text-[var(--navy)] mb-1">Zillow URL</label>
+                    <input id="zurl" type="text"
+                        placeholder="https://www.zillow.com/homedetails/..."
+                        value="https://www.zillow.com/homedetails/555-W-Cornelia-Ave-APT-1011-Chicago-IL-60657/3717256_zpid/"
+                        class="w-full rounded-md px-3 py-2 border border-[var(--navy)]/20 bg-[var(--light-gray)]/50
+                                  focus:outline-none focus:ring-2 focus:ring-[var(--navy)]" />
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block font-medium text-[var(--navy)] mb-1">Bedrooms</label>
+                        <input id="beds" type="number" min="0"
+                            value="2"
+                            class="w-full rounded-md px-3 py-2 border border-[var(--navy)]/20 bg-[var(--light-gray)]/50
+                                      focus:outline-none focus:ring-2 focus:ring-[var(--navy)]" />
+                    </div>
+
+                    <div>
+                        <label class="block font-medium text-[var(--navy)] mb-1">Bathrooms</label>
+                        <input id="baths" type="number" min="0" step="0.5"
+                            value="2"
+                            class="w-full rounded-md px-3 py-2 border border-[var(--navy)]/20 bg-[var(--light-gray)]/50
+                                      focus:outline-none focus:ring-2 focus:ring-[var(--navy)]" />
+                    </div>
+
+                    <div>
+                        <label class="block font-medium text-[var(--navy)] mb-1">Accommodates</label>
+                        <input id="accommodates" type="number" min="1"
+                            value="4"
+                            class="w-full rounded-md px-3 py-2 border border-[var(--navy)]/20 bg-[var(--light-gray)]/50
+                                      focus:outline-none focus:ring-2 focus:ring-[var(--navy)]" />
+                    </div>
+                </div>
+
+                <button
+                    id="submit-btn"
+                    class="w-full bg-[var(--navy)] text-[var(--white)] py-3 rounded-lg text-lg font-semibold
+                           hover:bg-[var(--gold)] hover:text-[var(--near-black)]
+                           transition-colors shadow-md">
+                    Generate AI Report
+                </button>
+            </section>
+
+            <!-- ----------------------------- -->
+            <!-- EMPTY STATE (if no results)  -->
+            <!-- ----------------------------- -->
+            {% if not price_pred %}
+            <div class="text-center text-[var(--navy)]/50 text-sm py-20">
+                <p>Fill in the form above and click <span class="font-semibold">Generate AI Report</span>.</p>
+            </div>
+            {% endif %}
+
+            <!-- ----------------------------- -->
+            <!-- OUTPUT SECTION (when results exist) -->
+            <!-- ----------------------------- -->
+            {% if price_pred %}
+            <div class="space-y-8">
+
+                <!-- Property Address -->
+                <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+                    <p class="text-xs uppercase tracking-widest text-[var(--navy)]/50 mb-2">Property Address</p>
+                    <h2 class="text-2xl md:text-3xl font-bold text-[var(--navy)] mb-3">
+                        {{ address.address if address else "" }}
+                    </h2>
+
+                    {% if maps_url %}
+                    <div class="flex gap-3 flex-wrap">
+                        <a href="{{ maps_url }}" target="_blank"
+                            class="inline-flex items-center px-4 py-2 rounded-lg bg-[var(--navy)] text-white
+                                  hover:bg-[var(--gold)] hover:text-[var(--navy)] transition-colors text-sm font-medium">
+                            📍 View on Maps
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- ML Section -->
+                <div class="bg-white rounded-xl shadow-lg p-8 mb-6">
+                    <h3 class="text-2xl font-bold text-[var(--navy)] mb-6 pb-3 border-b-2 border-[var(--gold)]">
+                        Machine Learning Predictions
+                    </h3>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+                        <div class="text-center p-6 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl">
+                            <p class="text-sm uppercase tracking-wide text-[var(--navy)]/70 mb-2 font-semibold">
+                                Predicted Price / Night
+                            </p>
+                            <p class="text-4xl font-bold text-blue-700">
+                                {{ "$" + "{:,.0f}".format(price_pred) }}
+                            </p>
+                        </div>
+
+                        <div class="text-center p-6 bg-gradient-to-br from-green-50 to-green-100 rounded-xl">
+                            <p class="text-sm uppercase tracking-wide text-[var(--navy)]/70 mb-2 font-semibold">
+                                Predicted Occupancy
+                            </p>
+                            <p class="text-4xl font-bold text-green-700">
+                                {{ "{:.0f}".format(occ_pred) }} / 365
+                            </p>
+                        </div>
+
+                        <div class="text-center p-6 bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl">
+                            <p class="text-sm uppercase tracking-wide text-[var(--navy)]/70 mb-2 font-semibold">
+                                Predicted Annual Revenue
+                            </p>
+                            <p class="text-4xl font-bold text-purple-700">
+                                {{ "$" + "{:,.0f}".format(rev_pred) }}
+                            </p>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- AI SUMMARY -->
+                {% if ai_summary %}
+                <div
+                    class="bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl shadow-lg p-8 border-2 border-[var(--gold)]">
+                    <h3 class="text-2xl font-bold text-[var(--navy)] mb-4">AI Investment Analysis</h3>
+                    <div class="prose prose-lg max-w-none text-gray-800 leading-relaxed whitespace-pre-line">
+                        {{ ai_summary }}
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if ai_error %}
+                <div class="bg-yellow-50 rounded-xl shadow p-6 border border-yellow-200">
+                    <p class="text-sm font-medium text-yellow-800">{{ ai_error }}</p>
+                </div>
+                {% endif %}
+            </div>
+            {% endif %}
+
+        </div>
+
+        <!-- LOADING OVERLAY -->
+        <div id="loading-overlay"
+            class="fixed inset-0 bg-black/20 backdrop-blur-sm hidden z-50 flex justify-center items-start pt-40">
+            <div class="flex flex-col items-center gap-4">
+                <div class="w-12 h-12 border-4 border-[var(--navy)] border-t-[var(--gold)]
+                            rounded-full animate-spin"></div>
+                <p class="text-[var(--navy)] font-semibold text-lg drop-shadow">Evaluating property…</p>
+            </div>
+        </div>
+
+        <!-- JS -->
+        <script>
+            document.getElementById("submit-btn").onclick = async (e) => {
+                e.preventDefault();
+
+                const formData = new FormData();
+                formData.append("url", document.getElementById("zurl").value.trim());
+                formData.append("bedrooms", document.getElementById("beds").value.trim());
+                formData.append("bathrooms", document.getElementById("baths").value.trim());
+                formData.append("accommodates", document.getElementById("accommodates").value.trim());
+
+                document.getElementById("loading-overlay").classList.remove("hidden");
+
+                const resp = await fetch("/api/preds_w_AI", {
+                    method: "POST",
+                    body: formData
+                });
+
+                const html = await resp.text();
+
+                document.open();
+                document.write(html);
+                document.close();
+            };
+        </script>
+
+    </body>
+</html>
