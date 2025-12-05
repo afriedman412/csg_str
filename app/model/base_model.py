@@ -1,6 +1,5 @@
 import numpy as np
 import pandas as pd
-
 import lightgbm as lgb
 from sklearn.model_selection import KFold
 from sklearn.base import BaseEstimator, RegressorMixin
@@ -101,7 +100,8 @@ class LightGBMRegressorCV(BaseEstimator, RegressorMixin):
 
         y_trans = self._forward(self.y_)
 
-        kf = KFold(n_splits=self.n_splits, shuffle=True, random_state=self.random_state)
+        kf = KFold(n_splits=self.n_splits, shuffle=True,
+                   random_state=self.random_state)
 
         oof_pred = np.zeros(len(Xc))
         oof_pred_trans = np.zeros(len(Xc))
@@ -116,7 +116,8 @@ class LightGBMRegressorCV(BaseEstimator, RegressorMixin):
             y_tr, y_val = y_trans.iloc[tr_idx], y_trans.iloc[val_idx]
 
             dtr = lgb.Dataset(X_tr, label=y_tr, categorical_feature=cat_cols)
-            dval = lgb.Dataset(X_val, label=y_val, categorical_feature=cat_cols)
+            dval = lgb.Dataset(X_val, label=y_val,
+                               categorical_feature=cat_cols)
 
             booster = lgb.train(
                 _sanitize_params(self.params),
@@ -131,7 +132,8 @@ class LightGBMRegressorCV(BaseEstimator, RegressorMixin):
             self._fold_models.append(booster)
 
             # Predict
-            val_pred_trans = booster.predict(X_val, num_iteration=booster.best_iteration)
+            val_pred_trans = booster.predict(
+                X_val, num_iteration=booster.best_iteration)
             val_pred = self._inverse(val_pred_trans)
             if self.clip_pred_lower is not None:
                 val_pred = np.clip(val_pred, self.clip_pred_lower, None)
@@ -149,7 +151,8 @@ class LightGBMRegressorCV(BaseEstimator, RegressorMixin):
             feat_imp_all.append(fold_imp)
 
         self.oof_pred_ = oof_pred
-        self.feature_importance_ = pd.concat(feat_imp_all, axis=0).reset_index(drop=True)
+        self.feature_importance_ = pd.concat(
+            feat_imp_all, axis=0).reset_index(drop=True)
 
         return self
 

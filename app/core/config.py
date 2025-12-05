@@ -17,19 +17,10 @@ DATA_DIR = ROOT_DIR / "data"
 DATA_PATHS = {
     "osm": DATA_DIR / "osm" / "chicago_features.gpkg",
     "census": DATA_DIR / "census_data.parquet",
+    "training_data": DATA_DIR / "df_clean_city_subset_111725.csv"
 }
-
-PIPELINE_PATH = ROOT_DIR / "models" / "pipeline.joblib"
 
 POPS_PATH = ROOT_DIR / "app" / "models" / "pops_"
-
-# for loading
-PIPELINE_PATHS = {
-    "properties": DATA_DIR / "df_clean_city_subset_111725.csv",
-    "embedder": PIPELINE_PATH / "embedder.pkl",
-    "embeddings": PIPELINE_PATH / "embeddings.pkl",
-    "assembler": PIPELINE_PATH / "assembler.pkl",
-}
 
 # for revenue predictions
 PRED_OPTIONS = {
@@ -106,4 +97,44 @@ CITY_CENTERS = {
     "seattle-wa": (47.6062, -122.3321),
     "twin-cities-mn": (44.9778, -93.2650),  # Minneapolis
     "washington-dc": (38.9072, -77.0369),
+}
+
+# Distance band cutpoints (in miles)
+DISTANCE_BANDS = [1, 2, 4]
+
+# PCA dimensionality
+PCA_COMPONENTS = 10
+
+EMBEDDING_CONFIG = {
+    "k_neighbors_graph": 20,
+    "k_neighbors_infer": 10,
+    "dimensions": 32,
+    "min_city_size": 200,
+}
+
+MODEL_DATA = {
+    "price": {
+        "target": "price_capped",
+        "transform": "log1p",
+        "params": {"num_leaves": 63, "learning_rate": 0.03},
+    },
+    "occupancy": {
+        "target": "estimated_occupancy_l365d",
+        "transform": "none",
+        "params": {
+            "objective": "tweedie",
+            "tweedie_variance_power": 1.3,
+            "learning_rate": 0.03,
+            "num_leaves": 63,
+        },
+    },
+    "revenue_corr": {
+        "target": "rev_corr_target",
+        "transform": "none",
+        "params": {
+            "num_leaves": 31,
+            "learning_rate": 0.03,
+            "feature_fraction": 0.8,
+        },
+    },
 }

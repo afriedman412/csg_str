@@ -9,7 +9,7 @@ from app.core.store import DataStore
 from app.core.config import CITY_CENTERS
 
 # from app.utils.zip_lookup import zip_for_latlon
-from app.schemas.property import AddressData
+from app.schemas.pydantic_ import AddressData
 from app.utils.helpers import haversine
 from app.core.registry import get_store
 
@@ -35,7 +35,8 @@ def _iter_feature_sets(store: DataStore):
     Otherwise, fall back to a single set named 'all_features' using the global tree.
     """
     meta = store.meta or {}
-    feature_sets: Optional[Dict[str, Dict[str, Any]]] = meta.get("feature_sets")
+    feature_sets: Optional[Dict[str, Dict[str, Any]]
+                           ] = meta.get("feature_sets")
 
     if feature_sets:
         for name, data in feature_sets.items():

@@ -7,10 +7,10 @@ import joblib
 from pathlib import Path
 from tqdm import tqdm
 from typing import List, Dict
-from app.core.model_config import DISTANCE_BANDS
+from app.core.config import DISTANCE_BANDS
 from app.core.col_control import PERF_FEATS, STRUCTURAL_FEATS
 from app.model.helpers import check_schema_compatibility
-from app.schemas.validator import EmbeddingSchema, StructuralSchema
+from app.schemas.pandera_ import EmbeddingSchema, StructuralSchema
 import faiss
 
 EARTH_RADIUS_KM = 6371.0
@@ -64,7 +64,8 @@ class PerformanceGraphEmbedderV3:
         dlat = lat2 - lat1[:, None]
         dlon = lon2 - lon1[:, None]
 
-        a = np.sin(dlat / 2) ** 2 + np.cos(lat1[:, None]) * np.cos(lat2) * np.sin(dlon / 2) ** 2
+        a = np.sin(dlat / 2) ** 2 + \
+            np.cos(lat1[:, None]) * np.cos(lat2) * np.sin(dlon / 2) ** 2
         return 2 * EARTH_RADIUS_KM * np.arcsin(np.sqrt(a))
 
     # -------------------------------------------------------------
@@ -141,11 +142,14 @@ class PerformanceGraphEmbedderV3:
     def _fit_city(self, df_city, city_name):
         n = len(df_city)
         if n < self.min_city_size:
-            print(f"[skip] {city_name}: only {n} listings (<{self.min_city_size})")
+            print(
+                f"[skip] {city_name}: only {n} listings (<{self.min_city_size})")
             return None
 
-        perfX = df_city[self.perf_features].fillna(0).to_numpy().astype("float32")
-        structX = df_city[self.structural_features].fillna(0).to_numpy().astype("float32")
+        perfX = df_city[self.perf_features].fillna(
+            0).to_numpy().astype("float32")
+        structX = df_city[self.structural_features].fillna(
+            0).to_numpy().astype("float32")
         coords = df_city[["latitude", "longitude"]].to_numpy()
 
         # --------------------------------------------------------
@@ -236,7 +240,8 @@ class PerformanceGraphEmbedderV3:
                     df_city[k] = df_city[k].fillna(df_city[k].mean())
 
             # Schema check
-            check_schema_compatibility(df_city, EmbeddingSchema, df_name=f"embedding_df_{city}")
+            check_schema_compatibility(
+                df_city, EmbeddingSchema, df_name=f"embedding_df_{city}")
 
             # Train for this city
             self._fit_city(df_city, city)
@@ -273,10 +278,12 @@ class PerformanceGraphEmbedderV3:
         """
         outputs = []
 
-        check_schema_compatibility(df_new, StructuralSchema, df_name="embedding_pred")
+        check_schema_compatibility(
+            df_new, StructuralSchema, df_name="embedding_pred")
         for city, df_city in df_new.groupby(city_col):
             if city not in self.city_perf_embeddings:
-                print(f"[warning] No trained embedder for city={city}, skipping.")
+                print(
+                    f"[warning] No trained embedder for city={city}, skipping.")
                 continue
 
             pca = self.city_pca.get(city)
@@ -284,7 +291,8 @@ class PerformanceGraphEmbedderV3:
             df_train_city = self.training_df.loc[train_idx]
 
             perf_train = df_train_city[self.perf_features].fillna(0).to_numpy()
-            struct_train = df_train_city[self.structural_features].fillna(0).to_numpy()
+            struct_train = df_train_city[self.structural_features].fillna(
+                0).to_numpy()
             coords_train = df_train_city[["latitude", "longitude"]].to_numpy()
             coords_new = df_city[["latitude", "longitude"]].to_numpy()
 
@@ -309,7 +317,8 @@ class PerformanceGraphEmbedderV3:
                     emb = np.pad(emb, ((0, 0), (0, pad)))
 
             df_emb = pd.DataFrame(
-                emb, index=df_city.index, columns=[f"perf_emb_{i}" for i in range(self.dim)]
+                emb, index=df_city.index, columns=[
+                    f"perf_emb_{i}" for i in range(self.dim)]
             )
             outputs.append(df_emb)
 
