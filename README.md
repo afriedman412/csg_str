@@ -23,10 +23,8 @@ Three interconnected **LightGBM** models power the system:
 
 1. **Nightly Price Model**  
 2. **Annual Occupancy Model**  
-3. **Annual Revenue Model**, constrained such that:  
-   \[
-   \text{Revenue} \approx \text{Price} \times \text{Occupancy}
-   \]
+3. **Annual Revenue Model**, constrained such that:<br>
+Revenue ≈ Price × Occupancy
 
 The revenue model learns a correction on top of price × occupancy to capture nonlinearities and city-specific dynamics.
 
