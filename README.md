@@ -1,5 +1,5 @@
-# 🏡 Short-Term Rental Revenue Estimator  
-### Predicting nightly price, annual occupancy, and total STR revenue for unrented properties
+# Short-Term Rental Revenue Estimator  
+#### Predicting nightly price, annual occupancy, and total STR revenue for unrented properties
 
 ## Overview
 
@@ -9,15 +9,15 @@ This project predicts potential **annual Short-Term Rental (STR) revenue** for p
 - Annual occupancy  
 - Annual revenue  
 
-New listings lack reviews, host history, and booking performance — features that strongly influence STR outcomes. To overcome this **cold-start problem**, the model builds a **geospatial performance embedding** that aggregates nearby and structurally similar listings across multiple distance bands. This produces a surrogate performance profile even when no historical data exists for a property.
+New listings lack reviews, host history, and booking performance — features that strongly influence STR outcomes. To overcome this cold-start problem, the model builds a geospatial performance embedding that aggregates nearby and structurally similar listings across multiple distance bands. This produces a surrogate performance profile even when no historical data exists for a property.
 
 A FastAPI web application allows users to input a Zillow URL and minimal property attributes to receive a revenue estimate and an AI-generated investment rating (“good / ok / caution / avoid”).
 
-Additionally, a **scenario explorer** mode evaluates how changes to features (amenities, capacity, personal-use assumptions) affect revenue using SHAP-derived marginal effects. This turns the system from a passive predictor into an **interactive decision-support tool**.
+Additionally, a scenario explorer mode evaluates how changes to features (amenities, capacity, personal-use assumptions) affect revenue using SHAP-derived marginal effects. This turns the system from a passive predictor into an interactive decision-support tool.
 
 ---
 
-## 🔧 Predictive Modeling
+## Predictive Modeling
 
 Three interconnected **LightGBM** models power the system:
 
@@ -32,14 +32,14 @@ The revenue model learns a correction on top of price × occupancy to capture no
 
 ---
 
-## 📊 Model Performance
+## Model Performance
 
 ### **Nightly Price**
 - **MAE:** 52.14  
 - **RMSE:** 93.37  
 - **R²:** 0.772  
 
-![Predicted vs Actual Nightly Price](plots/price_actual_vs_pred.png)
+![Predicted vs Actual Nightly Price](images/price.png)
 
 ---
 
@@ -50,7 +50,7 @@ The revenue model learns a correction on top of price × occupancy to capture no
 
 Occupancy is substantially more difficult to predict due to host behavior, listing visibility, cancellations, and dynamic pricing. This level of variance is typical for STR datasets.
 
-![Predicted vs Actual Occupancy](plots/occupancy_actual_vs_pred.png)
+![Predicted vs Actual Occupancy](images/occupancy.png)
 
 ---
 
@@ -61,16 +61,16 @@ Occupancy is substantially more difficult to predict due to host behavior, listi
 
 Despite upstream noise, revenue predictions maintain a clear diagonal structure.
 
-![Predicted vs Actual Revenue](plots/revenue_actual_vs_pred.png)
+![Predicted vs Actual Revenue](images/revenue.png)
 
 ### **Revenue Percent Error Distribution**  
 A scale-neutral view of model bias and variance.
 
-![Revenue Percent Error Histogram](plots/revenue_percent_error.png)
+![Revenue Percent Error Histogram](images/rev_error_dist.png)
 
 ---
 
-## 🗺️ Data Sources
+## Data Sources
 
 | Source | Description |
 |--------|-------------|
@@ -81,7 +81,7 @@ A scale-neutral view of model bias and variance.
 
 ---
 
-## 🧠 Methodology
+## Methodology
 
 ### **Feature Engineering**
 - Haversine distances  
@@ -104,8 +104,6 @@ For each property, the model:
 
 This yields a 32-dimensional vector representation capturing local pricing and occupancy patterns — crucial for properties with no historical data.
 
-![Embedding Diagnostics Placeholder](plots/embedding_band_diagnostics.png)
-
 ---
 
 ### **LightGBM Modeling Pipeline**
@@ -115,14 +113,9 @@ Each model performs:
 - Hyperparameter tuning  
 - Out-of-fold predictions for unbiased revenue correction  
 - SHAP interpretability  
-
-![SHAP Summary Placeholder – Price](plots/price_shap_summary.png)  
-![SHAP Summary Placeholder – Occupancy](plots/occupancy_shap_summary.png)  
-![SHAP Summary Placeholder – Revenue](plots/revenue_shap_summary.png)
-
 ---
 
-## 💻 Web Application
+## Web Application
 
 ### **Inputs**
 - Zillow URL  
@@ -138,14 +131,10 @@ Each model performs:
 - Natural-language rationale  
 - Optional SHAP-based scenario explorer  
 
-![Scenario Explorer Placeholder](plots/scenario_explorer_uplift.png)
-
 ---
 
-## 🚀 Planned Improvements
+## Planned Improvements
 - Batch-accelerated embeddings (Numba or FAISS inference)  
 - Seasonality models for city-specific demand cycles  
 - Enhanced occupancy modeling using listing-age & booking-lead signals  
-- More robust Zillow scraping  
-
----
+- More robust Zillow scraping

@@ -3,6 +3,7 @@ testo.py
 sample.json
 scrap/
 data/df_clean_city_subset_111725.csv
+notebooks/*/*.csv
 
 # --- Python ---
 __pycache__/
