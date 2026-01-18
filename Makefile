@@ -23,6 +23,7 @@ REQUIREMENTS := requirements.txt
 # ---------------------------
 venv:
 	@echo "🔧 Creating Python 3.12 virtual environment at $(VENV)..."
+	
 	python3.12 -m venv $(VENV)
 	@echo "📦 Upgrading pip..."
 	$(PYTHON) -m pip install --upgrade pip setuptools wheel

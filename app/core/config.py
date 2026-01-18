@@ -22,12 +22,13 @@ DATA_PATHS = {
 
 POPS_PATH = ROOT_DIR / "app" / "models" / "pops_"
 
-# for revenue predictions
+# for revenue predictions (use integers to match SCENARIO_DEFAULTS)
 PRED_OPTIONS = {
-    "pool": [True, False],
-    "housekeeping": [True, False],
-    "gym": [True, False],
-    "free_parking": [True, False],
+    "pool": [1, 0],
+    "hot_tub": [1, 0],
+    "housekeeping": [1, 0],
+    "gym": [1, 0],
+    "free_parking": [1, 0],
 }
 
 CSG_PALETTE = [

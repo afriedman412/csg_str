@@ -1,6 +1,5 @@
 import os
 import pytest
-from fastapi.testclient import TestClient
 import sys
 from pathlib import Path
 
@@ -12,6 +11,8 @@ if str(ROOT) not in sys.path:
 
 @pytest.fixture(scope="session")
 def client():
+    # Import here to avoid issues with test collection
+    from starlette.testclient import TestClient
     from app.main import app
 
     os.environ["TESTING"] = "1"
