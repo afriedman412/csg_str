@@ -4,6 +4,7 @@ sample.json
 scrap/
 data/df_clean_city_subset_111725.csv
 notebooks/*/*.csv
+.claude/
 
 # --- Python ---
 __pycache__/

@@ -7,7 +7,7 @@ import base64
 import matplotlib.pyplot as plt
 from pathlib import Path
 from typing import List
-from sklearn.metrics import root_mean_squared_error, mean_absolute_error, r2_score
+from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 from app.core.col_control import PERF_FEATS, STRUCTURAL_FEATS
 from app.core.config import CSG_PALETTE, MODEL_DATA, EMBEDDING_CONFIG
 from app.model.embedder import PerformanceGraphEmbedderV3
@@ -150,7 +150,7 @@ class Pops:
         )
 
         self.revenue_metrics = {
-            "rmse": root_mean_squared_error(self.y_revenue, rev_pred_train, squared=False),
+            "rmse": np.sqrt(mean_squared_error(self.y_revenue, rev_pred_train)),
             "mae": mean_absolute_error(self.y_revenue, rev_pred_train),
             "r2": r2_score(self.y_revenue, rev_pred_train)
         }

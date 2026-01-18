@@ -1,5 +1,5 @@
 import pandas as pd
-from urllib.parse import urlencode
+from urllib.parse import urlencode, quote
 from fastapi import APIRouter, Form, Request, HTTPException
 from fastapi.responses import ORJSONResponse, RedirectResponse
 from app.core.registry import get_store
@@ -102,7 +102,8 @@ async def perms_from_url(
         preds_and_exp = store.pipeline.predict_and_explain(permo_df)
 
         # 4) Shape a clean response for the UI
-        idx = get_original_match_mask(permo_df, input_values).index[0]
+        mask = get_original_match_mask(permo_df, input_values)
+        idx = permo_df[mask].index[0]
         content = {
             "request": request,
             "address": str(address),

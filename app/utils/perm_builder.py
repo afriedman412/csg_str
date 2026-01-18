@@ -79,7 +79,8 @@ def get_original_match_mask(permo_df, input_values):
         "housekeeping": 0,
         "free_parking": 0,
     }
-    input_values.update(blank_)
+    # Copy to avoid mutating caller's dict
+    input_values = {**input_values, **blank_}
     mask_parts = []
     for col, val in input_values.items():
         if col not in permo_df.columns:
